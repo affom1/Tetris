@@ -4,7 +4,7 @@ import tetris.Figure;
 import tetris.gui.ActionEvent;
 import tetris.gui.GUI;
 import tetris.gui.Block;
-
+import tetris.model.figures.*;
 
 
 public class Game {
@@ -18,9 +18,6 @@ public class Game {
     }  // Ein Konstruktor // Einmal zugewiesen, danach sit GUI fix.
 
     public void start() {
-        //createBlock();
-        // bereits einmal Aufrufen, falls es erwünscht ist, dass der Punkt bereits im GUI erscheint.
-
         createFigure(((gui.getFieldWidth() -1)/2),gui.getFieldHeight()-1);
         updateGui();
         while (true) {
@@ -67,7 +64,27 @@ public class Game {
     }
 
     public void createFigure(int x, int y) {
-        this.figure = new Figure(20, x,y);
+
+        // generiere  Random
+        double random = Math.random()*7;
+        System.out.println(random);
+        int rrandom = (int) random;
+
+        int notRandom = 2;
+
+        switch (notRandom) {
+            case 0: this.figure = new IFigure(x, y); break;
+            case 1: this.figure = new JFigure(x, y); break;
+            case 2: this.figure = new LFigure(x, y); break;
+            case 3: this.figure = new OFigure(x, y); break;
+            case 4: this.figure = new SFigure(x, y); break;
+            case 5: this.figure = new TFigure(x, y); break;
+            case 6: this.figure = new ZFigure(x, y); break;
+            default:
+                System.out.println("Zahl nicht zwischen 0 und 6");
+                break;
+        }
+
     }
 
 
