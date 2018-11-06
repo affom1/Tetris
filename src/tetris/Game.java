@@ -1,7 +1,7 @@
 package tetris;
 
-import tetris.Figure;
 import tetris.gui.ActionEvent;
+import tetris.gui.ActionHandler;
 import tetris.gui.GUI;
 import tetris.gui.Block;
 import tetris.model.figures.*;
@@ -11,7 +11,8 @@ public class Game {
 
     //private Block block;
     private final GUI gui; // sollte Konstante sein, damit es nicht ausgewechselt werden kann. darum Final
-    private Figure figure;  // die Figur jedoch nicht final
+    private Figure figure;  // die Figur jedoch nicht final --> aber nur ein Figure nicht IFigure oder was auch immer --> Polymorphism
+    private Game.FigureController figureController;
 
     public Game (GUI gui) {
         this.gui = gui;
@@ -20,18 +21,15 @@ public class Game {
     public void start() {
         createFigure(((gui.getFieldWidth() -1)/2),gui.getFieldHeight()-1);
         updateGui();
-        while (true) {
-            ActionEvent e = gui.waitEvent();
-            handleEvent (e);
-            updateGui();
-        }
+
+        // erzeugen sie in der Klasse Game einen FicureController
+        figureController = new FigureController();
+
+        // registrieren sie den FigureController beim GUI.
+        gui.setActionHandler(figureController);
 
     }
 
-//    public void createBlock() {
-//        this.block = new Block(4,18,18);
-//
-//    }
     public void updateGui() {
         this.gui.clear();
         Block [] temp;
@@ -39,40 +37,17 @@ public class Game {
         for (int i = 0; i<figure.getBlocks().length; i++) {
             gui.drawBlock(temp[i]);
         }
-
-//        this.gui.drawBlock(this.block);
-    }
-
-    public void handleEvent(ActionEvent e) {
-        // schöner wäre es mit Switch Case
-//        switch (e) {
-//            case MOVE_DOWN:
-//                figure.move(0, -1);
-//                break;  // schöner mit break;
-//            case MOVE_LEFT:
-//                figure.move(-1, 0);
-//                break;
-//            default:
-//                break;
-//        }
-
-        if (e == ActionEvent.MOVE_DOWN) figure.move(0, -1);
-        if (e == ActionEvent.MOVE_LEFT) figure.move(-1, 0);
-        if (e == ActionEvent.MOVE_RIGHT) figure.move(1, 0);
-        if (e == ActionEvent.ROTATE_LEFT) figure.rotate(1);
-        if (e== ActionEvent.ROTATE_RIGHT) figure.rotate(-1);
     }
 
     public void createFigure(int x, int y) {
 
         // generiere  Random
-        double random = Math.random()*7;
-        System.out.println(random);
-        int rrandom = (int) random;
+        int random = (int) (Math.random()*7);
 
-        int notRandom = 2;
+//
+//        int random = 2;
 
-        switch (notRandom) {
+        switch (random) {
             case 0: this.figure = new IFigure(x, y); break;
             case 1: this.figure = new JFigure(x, y); break;
             case 2: this.figure = new LFigure(x, y); break;
@@ -83,6 +58,39 @@ public class Game {
             default:
                 System.out.println("Zahl nicht zwischen 0 und 6");
                 break;
+        }
+
+    }
+    private class FigureController implements ActionHandler {
+
+        public void moveDown() {
+            figure.move(0, -1);
+            updateGui();
+        }
+
+        public void moveLeft() {
+            figure.move(-1, 0);
+            updateGui();
+
+        }
+
+        public void moveRight() {
+            figure.move(1, 0);
+            updateGui();
+        }
+
+        public void rotateLeft() {
+            figure.rotate(1);
+            updateGui();
+        }
+
+        public void rotateRight() {
+            figure.rotate(-1);
+            updateGui();
+        }
+
+        public void drop() {
+            // TODO: 06.11.2018  noch leer lassen
         }
 
     }

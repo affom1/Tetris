@@ -7,6 +7,8 @@ import java.awt.*;
 
 public class IFigure extends Figure {
 
+    // private final static int COLOR =1;
+
     public IFigure(int x, int y) {
         super(1, x, y); // rot
         System.out.println("IFigure");
@@ -14,16 +16,14 @@ public class IFigure extends Figure {
         blockarray[1] = new Block(x-1,y,color);
         blockarray[2] = new Block(x+1,y,color);
         blockarray[3] = new Block(x+2,y,color);
+
+
+//        blockarray[0] = new Block(x,y,COLOR);
+//        blockarray[1] = new Block(x-1,y,COLOR);
+//        blockarray[2] = new Block(x+1,y,COLOR);
+//        blockarray[3] = new Block(x+2,y,COLOR);
+
+
     }
 
-//    public IFigure () {
-//        super();
-//        // auch möglich und schöner:
-//        // Achtunng: dann muss rotate umgebaut werden!
-//        blockarray[0] = new Block(x,y,color);
-//        blockarray[1] = new Block(x-1,y,color);
-//        blockarray[2] = new Block(x+1,y,color);
-//        blockarray[3] = new Block(x+2,y,color);
-//
-//    }
 }

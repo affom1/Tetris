@@ -7,12 +7,25 @@ import java.awt.*;
 // Linepiece
 public abstract class Figure {
 
-    protected int color;
-    protected Block[] blockarray = new Block[4];  // jede Figur hat vier Blöcke
+    //Alternativ weglassen und erst in der IFigure Klassen implementieren
+    protected final int color;
+
+    /**
+     *  final weil es nicht ändern soll --> robuste Programmierung. Attribute, wo man weiss, dass sie nicht ändern sollen am besten final deklarieren
+     *  jede Figur hat vier Blöcke
+     *  somit dürfen abgeleitete Methoden direkt darauf zugreifen
+     *  protected weil es zwingend
+     *
+     */
+    protected final Block[] blockarray = new Block[4];  //  //
 
     public Figure (int color, int x, int y) {
         this.color = color;
     }
+
+//    public Figure (int x, int y) {
+//
+//    }
 
     public Block[] getBlocks() {
         return blockarray;
