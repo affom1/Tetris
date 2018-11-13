@@ -3,6 +3,8 @@ package tetris;
 import tetris.gui.Block;
 
 import java.awt.*;
+import java.util.Arrays;
+import java.util.Objects;
 
 // Linepiece
 public abstract class Figure {
@@ -21,11 +23,52 @@ public abstract class Figure {
 
     public Figure (int color, int x, int y) {
         this.color = color;
+
     }
 
-//    public Figure (int x, int y) {
+    @Override
+    public String toString() {
+//        return "Figure{" + "Die Figure "+getClass().getSimpleName()+
+//                " color=" + color +
+//                ", blockarray=" + Arrays.toString(blockarray) +
 //
-//    }
+//                '}';
+
+        String neu= "Die Figur: ";
+        neu = neu+ getClass().getSimpleName().toString();
+        for (int i = 0; i<blockarray.length;i++) {
+            neu = neu+"Block "+i+ " hat Koordinaten "+convert(blockarray[i]);
+
+        }
+        return neu;
+    }
+    private String convert (Block block) {
+        return "(" + block.x+")"+ " ("+block.y+")";
+    }
+
+    @Override
+    public boolean equals(Object o) {
+
+        // 1. return true, wenn es das selbe Objekt ist (== Prüfung)
+        if (this == o) return true;
+        // 2. return false, wenn es keine Figur ist oder wenn es null ist
+        if (o==null || getClass() != o.getClass()) return false;
+
+        //3. Caste das Objekt in eine Figur
+        Figure figure = (Figure) o;
+        // vergleiche alle Attribute miteinander und returne true, wenn sie stimmen, oder false wenn sie nicht gleich sind.
+        return color == figure.color &&
+                Arrays.equals(blockarray, figure.blockarray);
+    }
+
+
+
+    @Override
+    public int hashCode() {
+        int result = Objects.hash(color);
+        result = 31 * result + Arrays.hashCode(blockarray);
+        return result;
+    }
 
     public Block[] getBlocks() {
         return blockarray;
@@ -44,6 +87,8 @@ public abstract class Figure {
         }
 
     }
+
+
 
     public void rotate(int d) {
 

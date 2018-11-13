@@ -26,12 +26,12 @@ public class Tetris {
             width = Integer.parseInt(args[0]);
             height = Integer.parseInt(args[1]);
 
-        } catch (ArrayIndexOutOfBoundsException ex) {
+        } catch (ArrayIndexOutOfBoundsException | NumberFormatException ex) {
 
         }
-
-        GUI  myGui = new GUI(width, height);
-        Game game = new Game(myGui);
+        Field field = new Field(width, height);
+        GUI  myGui = new GUI(field.getWidth(), field.getHeight());
+        Game game = new Game(myGui, field);
         game.start();
 
 
