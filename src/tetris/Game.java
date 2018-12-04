@@ -6,9 +6,11 @@ import tetris.gui.GUI;
 import tetris.gui.Block;
 import tetris.model.CollisionException;
 import tetris.model.Field;
+import tetris.model.Scoring;
 import tetris.model.figures.*;
 
 import java.lang.management.ManagementFactory;
+import java.util.LinkedList;
 import java.util.Objects;
 
 
@@ -19,18 +21,21 @@ public class Game {
     private Figure figure;  // die Figur jedoch nicht final --> aber nur ein Figure nicht IFigure oder was auch immer --> Polymorphism
     private FigureController figureController;
     private Field field;
+    private Scoring score;
 
     public Game (GUI gui, Field field) {
         this.gui = gui;
         this.field = field;
+        this.score = new Scoring();
     }  // Ein Konstruktor // Einmal zugewiesen, danach sit GUI fix.
 
     public void start() {
-        createFigure(((gui.getFieldWidth() -1)/2),gui.getFieldHeight()-1);
+        figureController = new FigureController();
+        createFigure(((gui.getFieldWidth() -1)/2),gui.getFieldHeight()-2);
         updateGui();
 
         // erzeugen sie in der Klasse Game einen FicureController
-        figureController = new FigureController();
+
 
         // registrieren sie den FigureController beim GUI. // das GUI ruft uns auf wenn es einen Event gibt
         // darum muss ein Interface, eine Schnittstelle definiert werden
@@ -43,11 +48,25 @@ public class Game {
 
     public void updateGui() {
         this.gui.clear();
-        Block [] temp;
-        temp = figure.getBlocks();
-        for (int i = 0; i<figure.getBlocks().length; i++) {
-            gui.drawBlock(temp[i]);
+        Block[] temp = null;
+
+        try {
+            temp = figure.getBlocks();
+            for (int i = 0; i<figure.getBlocks().length; i++) {
+                gui.drawBlock(temp[i]);
+            }
+        } catch (NullPointerException e) {
+            System.out.println("Am Ende nicht mehr möglich.");
         }
+
+        if (field.getBlocks()!=null) {
+            LinkedList<Block> tempField = (LinkedList<Block>) field.getBlocks();
+            for (Block b : tempField) {
+                gui.drawBlock(b);
+            }
+        }
+        gui.setScore(score.getScore());
+        gui.setHighScore(score.getHighscore());
     }
 
     public void createFigure(int x, int y) {
@@ -57,21 +76,59 @@ public class Game {
 
 //
 //        random = 0;
-
-        switch (random) {
-            case 0: this.figure = new IFigure(x, y);            break;
-            case 1: this.figure = new JFigure(x, y); break;
-            case 2: this.figure = new LFigure(x, y); break;
-            case 3: this.figure = new OFigure(x, y); break;
-            case 4: this.figure = new SFigure(x, y); break;
-            case 5: this.figure = new TFigure(x, y); break;
-            case 6: this.figure = new ZFigure(x, y); break;
-            default:
-                System.out.println("Zahl nicht zwischen 0 und 6");
-                break;
+        if (figureController!=null) {
+            switch (random) {
+                case 0:
+                    this.figure = new IFigure(x, y);
+                    break;
+                case 1:
+                    this.figure = new JFigure(x, y);
+                    break;
+                case 2:
+                    this.figure = new LFigure(x, y);
+                    break;
+                case 3:
+                    this.figure = new OFigure(x, y);
+                    break;
+                case 4:
+                    this.figure = new SFigure(x, y);
+                    break;
+                case 5:
+                    this.figure = new TFigure(x, y);
+                    break;
+                case 6:
+                    this.figure = new ZFigure(x, y);
+                    break;
+                default:
+                    System.out.println("Zahl nicht zwischen 0 und 6");
+                    break;
+            }
+            try {
+                field.detectCollision(figure.getBlocks());
+            } catch
+            (CollisionException ex) {
+                if (ex.getMessage().equals("Berührt an bestehendem Block")) stop();
+            }
         }
-
     }
+
+    public void figureLanded (Block [] blocks) {
+        field.addBlocks(figure.getBlocks());
+        score.updateScore(field.removeFullRows());
+        createFigure(((gui.getFieldWidth() -1)/2),gui.getFieldHeight()-2);
+    }
+
+
+    public void stop () {
+        gui.setActionHandler(null);
+        figureController = null;
+        this.figure = null;
+        score.updateHighScore();
+        updateGui();
+        System.out.println("Game Over");
+    }
+
+
 
     // darum muss ein Interface, eine Schnittstelle definiert werden
     // wenn eine Klasse ein Interface inmplementiert, dann muss jede Methode des Interface implementiert werden
@@ -87,10 +144,11 @@ public class Game {
             catch (CollisionException c) {
                 System.err.println("Error: "+c.getMessage());
                 figure.move(0,1);
+                // nur wenn es der dritte Fall der DetectCollistion auslöst.
+                if (c.getMessage().equals("Berührt an bestehendem Block")) figureLanded(figure.getBlocks());
+                if (c.getMessage().equals("Berührt an der Y Achse")) figureLanded(figure.getBlocks());
             }
             updateGui();
-            System.out.println(figure);
-
         }
         @Override
         public void moveLeft() {
@@ -148,13 +206,20 @@ public class Game {
                while (true) {
                    figure.move(0,-1);
                    field.detectCollision(figure.getBlocks());
+                   updateGui();
+//                   try {
+//                       Thread.sleep(200);
+//                   } catch (InterruptedException e) {
+//                       e.printStackTrace();
+//                   }
+
                }
            } catch (CollisionException c) {
                System.err.println("Error: "+c.getMessage());
                figure.move(0,1);
-
+               // nur wenn es der dritte Fall der DetectCollistion auslöst.
+               updateGui();
            }
-            updateGui();
         }
     }
 }
