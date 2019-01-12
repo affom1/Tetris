@@ -10,6 +10,8 @@ import tetris.model.Scoring;
 import tetris.model.figures.*;
 
 import java.lang.management.ManagementFactory;
+import java.rmi.registry.Registry;
+import java.rmi.server.UnicastRemoteObject;
 import java.util.LinkedList;
 import java.util.Objects;
 
@@ -21,7 +23,7 @@ public class Game {
     private Figure figure;  // die Figur jedoch nicht final --> aber nur ein Figure nicht IFigure oder was auch immer --> Polymorphism
     private FigureController figureController;
     private Field field;
-    private Scoring score;
+    private final Scoring score;
 
     public Game (GUI gui, Field field) {
         this.gui = gui;
@@ -31,8 +33,11 @@ public class Game {
 
     public void start() {
         figureController = new FigureController();
+
+        figureController.start();
         createFigure(((gui.getFieldWidth() -1)/2),gui.getFieldHeight()-2);
         updateGui();
+        gui.setActionHandler(figureController);
 
         // erzeugen sie in der Klasse Game einen FicureController
 
@@ -40,7 +45,7 @@ public class Game {
         // registrieren sie den FigureController beim GUI. // das GUI ruft uns auf wenn es einen Event gibt
         // darum muss ein Interface, eine Schnittstelle definiert werden
         // wenn eine Klasse ein Interface inmplementiert, dann muss jede Methode des Interface implementiert werden.
-        gui.setActionHandler(figureController);
+
 
     }
 
@@ -67,6 +72,7 @@ public class Game {
         }
         gui.setScore(score.getScore());
         gui.setHighScore(score.getHighscore());
+        gui.setLevel(score.getLevel());
     }
 
     public void createFigure(int x, int y) {
@@ -115,12 +121,13 @@ public class Game {
     public void figureLanded (Block [] blocks) {
         field.addBlocks(figure.getBlocks());
         score.updateScore(field.removeFullRows());
-        createFigure(((gui.getFieldWidth() -1)/2),gui.getFieldHeight()-2);
+        createFigure(((gui.getFieldWidth() -1)/2),gui.getFieldHeight()-1); // eventuell Minus 2 so läufts suberer
     }
 
 
     public void stop () {
         gui.setActionHandler(null);
+        figureController.interrupt(); // zuerst den Thread unterbrechen.
         figureController = null;
         this.figure = null;
         score.updateHighScore();
@@ -133,7 +140,7 @@ public class Game {
     // darum muss ein Interface, eine Schnittstelle definiert werden
     // wenn eine Klasse ein Interface inmplementiert, dann muss jede Methode des Interface implementiert werden
     // private weil, sie nur innerhalb der Klasse gebraucht wird.
-    private class FigureController implements ActionHandler {
+    private class FigureController extends Thread implements ActionHandler{
 
         @Override
         public void moveDown() {
@@ -221,5 +228,48 @@ public class Game {
                updateGui();
            }
         }
+
+    public void run () {
+
+        // zuerst Mal schlaffen Todo: Den Schlaf durch das Level verkürzen.
+        while (!Thread.interrupted()) { // solange nicht interrupted tu das.
+            try {
+                float factor = giveFactor(score.getLevel());
+                int sleepInMillis = (int) (1000*factor);
+
+                System.out.println("Schlafen in Millisek: "+sleepInMillis);
+                Thread.sleep(sleepInMillis);
+                //Thread.sleep((long) (1000*Math.exp(-0.1 * score.getLevel())));
+                moveDown();
+            } catch (InterruptedException e) {
+                e.getMessage();
+                System.err.println("interrupted? kommts überhaupt");
+            }
+            // danach move nach unten
+//            if (figure!=null) {
+//                figure.move(0,-1);
+//            }
+//            updateGui();
+        }
+
+    }
+
+        private float giveFactor(int level) {
+            switch (level) {
+                case 0: return 1.0f;
+                case 1: return 0.8f;
+                case 2: return 0.6f;
+                case 3: return 0.5f;
+                case 4: return 0.4f;
+                case 5: return 0.3f;
+                case 6: return 0.28f;
+                case 7: return 0.26f;
+                case 8: return 0.24f;
+                case 9: return 0.22f;
+
+                default:return 0.2f;
+            }
+        }
+
     }
 }

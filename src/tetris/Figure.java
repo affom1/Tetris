@@ -74,7 +74,7 @@ public abstract class Figure {
         return blockarray;
     }
 
-    public void move(int dx, int dy) {
+    public synchronized void move(int dx, int dy) {
        // schöne for-Schlaufe --> Für jeden Block im BlockArray: mach das!
          /**
          *    diese Schleife ist Ressourcenschonender vor allem wenn LinkedLists verwendet werden
@@ -90,7 +90,7 @@ public abstract class Figure {
 
 
 
-    public void rotate(int d) {
+    public synchronized void rotate(int d) {
 
         int cx = blockarray[0].x;   // Vektor! Das Drehzentrum
         int cy = blockarray[0].y;   // Vektor! Das Drehzentrum

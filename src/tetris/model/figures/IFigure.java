@@ -18,13 +18,6 @@ public class IFigure extends Figure {
         blockarray[3] = new Block(x+2,y,color);
 
 
-
-//        blockarray[0] = new Block(x,y,COLOR);
-//        blockarray[1] = new Block(x-1,y,COLOR);
-//        blockarray[2] = new Block(x+1,y,COLOR);
-//        blockarray[3] = new Block(x+2,y,COLOR);
-
-
     }
 
     @Override
